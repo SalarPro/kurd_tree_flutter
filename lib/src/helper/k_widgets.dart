@@ -1,9 +1,49 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:kurd_tree/src/constants/assets.dart';
 import 'package:kurd_tree/src/helper/spcolor.dart';
+import 'package:lottie/lottie.dart';
 
 class KWidget {
+  static Widget btnIcon({
+    required String image,
+    Color? bgColor,
+    Color? color,
+    Function()? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: SPColors.dark.withOpacity(0.5),
+              spreadRadius: 0,
+              blurRadius: 0,
+              offset: const Offset(2, 4), // changes position of shadow
+            ),
+          ],
+          color: bgColor ?? SPColors.main,
+          borderRadius: BorderRadius.circular(13),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Image.asset(
+              image,
+              width: 22,
+              height: 22,
+              color: color ?? SPColors.dark,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   static Widget btnMedium(
       {String? title,
       String? image,
@@ -107,7 +147,7 @@ class KWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(),
+                Lottie.asset(Assets.resourceIconLottieLoading2, width: 100),
                 const SizedBox(
                   height: 20,
                 ),

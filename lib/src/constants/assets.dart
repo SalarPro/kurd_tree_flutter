@@ -21,9 +21,25 @@ class Assets {
   /// assets/icon/left_arrow.png
   static const String resourceIconLeftArrow = "assets/icon/left_arrow.png";
 
+  /// Assets for resourceIconLink
+  /// assets/icon/link.png
+  static const String resourceIconLink = "assets/icon/link.png";
+
   /// Assets for resourceIconLinkedin
   /// assets/icon/linkedin.png
   static const String resourceIconLinkedin = "assets/icon/linkedin.png";
+
+  /// Assets for resourceIconLottieLoading
+  /// assets/icon/lottie_loading.json
+  static const String resourceIconLottieLoading = "assets/icon/lottie_loading.json";
+
+  /// Assets for resourceIconLottieLoading2
+  /// assets/icon/lottie_loading_2.json
+  static const String resourceIconLottieLoading2 = "assets/icon/lottie_loading_2.json";
+
+  /// Assets for resourceIconLottieOading3
+  /// assets/icon/lottie_oading_3.json
+  static const String resourceIconLottieOading3 = "assets/icon/lottie_oading_3.json";
 
   /// Assets for resourceIconMail
   /// assets/icon/mail.png
@@ -48,6 +64,10 @@ class Assets {
   /// Assets for resourceIconTelegram
   /// assets/icon/telegram.png
   static const String resourceIconTelegram = "assets/icon/telegram.png";
+
+  /// Assets for resourceIconUpload
+  /// assets/icon/upload.png
+  static const String resourceIconUpload = "assets/icon/upload.png";
 
   /// Assets for resourceIconUser
   /// assets/icon/user.png

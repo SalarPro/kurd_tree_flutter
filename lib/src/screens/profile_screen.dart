@@ -1,10 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:kurd_tree/src/constants/assets.dart';
+import 'package:kurd_tree/src/helper/k_widgets.dart';
 import 'package:kurd_tree/src/helper/spcolor.dart';
+import 'package:kurd_tree/src/models/kt_social_model.dart';
+import 'package:kurd_tree/src/models/kt_user_model.dart';
 import 'package:kurd_tree/src/screens/edit_profile_screen.dart';
 import 'package:kurd_tree/src/widgets/k_social_row.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -14,12 +19,36 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  KTUser? mUser;
+
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUser();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: SPColors.dark,
-      body: body,
+      body: Stack(
+        children: [body, KWidget.loadingView(isLoading)],
+      ),
     );
+  }
+
+  loadUser() async {
+    print("loadUser called");
+    setState(() {
+      isLoading = true;
+    });
+    mUser = await KTUser.getUser(userUID: "abc123");
+    if (mUser != null) {
+      isLoading = false;
+    }
+    setState(() {});
   }
 
   Widget get body {
@@ -46,10 +75,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30),
                   ),
-                  child: Image.asset(
-                    Assets.resourceIconPc,
-                    fit: BoxFit.cover,
-                  ),
+                  child: mUser?.coverPictureUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: mUser!.coverPictureUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          Assets.resourceIconPc,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
@@ -58,7 +92,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               right: 20,
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() => const EditProfileScreen());
+                  Get.to(() => EditProfileScreen(user: mUser))
+                      ?.then((value) => loadUser());
                 },
                 child: SafeArea(
                   child: Container(
@@ -84,10 +119,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 height: 100,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(100),
-                  child: Image.asset(
-                    Assets.resourceIconPersone,
-                    fit: BoxFit.cover,
-                  ),
+                  child: mUser?.profilePictureUrl != null
+                      ? CachedNetworkImage(
+                          imageUrl: mUser!.profilePictureUrl!,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.asset(
+                          Assets.resourceIconPersone,
+                          fit: BoxFit.cover,
+                        ),
                 ),
               ),
             ),
@@ -99,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Salar Pro",
+                    mUser?.fullName ?? "N/A",
                     style: SPColors.lightStyle(
                       30,
                       weight: FontWeight.bold,
@@ -121,60 +161,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 30),
             child: Container(
               width: double.infinity,
-              child: Text(
-                  "Of a content management system, differs from other web-based systems ",
-                  style: SPColors.lightStyle(14)),
+              child: Text(mUser?.bio ?? "N/A", style: SPColors.lightStyle(14)),
             )),
         const SizedBox(height: 15),
-        KSocialRow(
-          name: "@Salar_Pro",
-          icon: Assets.resourceIconInstagram,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "@SalarPro",
-          icon: Assets.resourceIconYoutube,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "PayPal",
-          icon: Assets.resourceIconPaypal,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "Salar Khalid",
-          icon: Assets.resourceIconFacebook,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "+964 (0)750 350 5440",
-          icon: Assets.resourceIconWhatsapp,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "+964 (0)750 350 5440",
-          icon: Assets.resourceIconTelegram,
-          onTap: () {
-            //
-          },
-        ),
-        KSocialRow(
-          name: "+964 (0)750 350 5440",
-          icon: Assets.resourceIconViber,
-          onTap: () {
-            //
-          },
-        ),
+        for (KTSocialModel socaila in mUser?.socials ?? [])
+          KSocialRow(
+            name: socaila.name,
+            icon: socaila.icon,
+            onTap: () {
+              print(socaila.url);
+
+              var uri = Uri.parse(socaila.url!);
+              launchUrl(uri, mode: LaunchMode.inAppWebView);
+            },
+          ),
         const SizedBox(height: 100),
       ]),
     );
