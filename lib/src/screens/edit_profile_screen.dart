@@ -12,26 +12,27 @@ import 'package:kurd_tree/src/helper/k_widgets.dart';
 import 'package:kurd_tree/src/helper/spcolor.dart';
 import 'package:kurd_tree/src/models/kt_social_model.dart';
 import 'package:kurd_tree/src/models/kt_user_model.dart';
+import 'package:kurd_tree/src/providers/auth_provider.dart';
+import 'package:kurd_tree/src/screens/profile_screen.dart';
 import 'package:kurd_tree/src/widgets/k_text_filed.dart';
 import 'package:kurd_tree/src/widgets/k_text_filed_social.dart';
+import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key, this.user});
-
-  final KTUser? user;
+  const EditProfileScreen({super.key});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  KTUser? cUser;
+  late AuthProvider authProvider;
 
-  @override
-  void initState() {
-    super.initState();
-    cUser = widget.user;
+  KTUser? get cUser => authProvider.user;
+
+  setUserData() {
+    authProvider = Provider.of(Get.context!);
     fullNameTEC.text = cUser?.fullName ?? "";
     bioTEC.text = cUser?.bio ?? "";
     emailTEC.text = cUser?.email ?? "";
@@ -80,7 +81,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   bool isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    setUserData();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of(context);
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -143,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "Salar Pro",
+                    fullNameTEC.text.trim(),
                     style: SPColors.lightStyle(
                       30,
                       weight: FontWeight.bold,
@@ -200,9 +208,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         KTextField(
           controller: bioTEC,
           dynamicHeight: true,
+          hint: "Bio",
         ),
         KTextField(
           controller: fullNameTEC,
+          onChanged: (_) {
+            setState(() {});
+          },
           hint: "Full name",
           icon: Assets.resourceIconUser,
         ),
@@ -210,12 +222,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           controller: emailTEC,
           hint: "Email",
           icon: Assets.resourceIconMail,
+          isEnable: false,
         ),
         KTextField(
           controller: TextEditingController(),
           hint: "Password",
           icon: Assets.resourceIconPassword,
           isPassword: true,
+          isEnable: false,
         ),
         const SizedBox(height: 15),
         Padding(
@@ -278,6 +292,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               onSave();
             }),
         const SizedBox(height: 100),
+        KWidget.btnMedium(
+            title: "SingOut",
+            image: Assets.resourceIconUser,
+            onTap: () {
+              showSignOutAlert();
+            }),
+        const SizedBox(height: 100),
       ]),
     );
   }
@@ -297,7 +318,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     } else {
       coverImage = Image.asset(
-        Assets.resourceIconPc,
+        Assets.resourceIconUser,
         fit: BoxFit.cover,
       );
     }
@@ -335,7 +356,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       );
     } else {
       profileImage = Image.asset(
-        Assets.resourceIconPersone,
+        Assets.resourceIconUser,
         fit: BoxFit.cover,
       );
     }
@@ -364,19 +385,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   }
 
   onSave() async {
-    fullNameTEC;
-    bioTEC;
-    emailTEC;
-    instagramTEC;
-    instagramUrlTEC;
-    youtubeTEC;
-    youtubeUrlTEC;
-    whatsappTEC;
-
-    coverImgFile;
-    profileImgFile;
-    coverImgURL;
-    profileImgURL;
     //Check inputs
     if (fullNameTEC.text.trim().isEmpty) {
       KHelper.showSnackBar("Please enter your full name");
@@ -387,12 +395,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       KHelper.showSnackBar("Please enter your email");
       return;
     }
-
-    // prepare data
-    cUser!.uid = "abc123";
-    cUser!.fullName = fullNameTEC.text.trim();
-    cUser!.bio = bioTEC.text.trim();
-    cUser!.email = emailTEC.text.trim();
 
     List<KTSocialModel> socials = [];
 
@@ -480,9 +482,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       cUser!.profilePictureUrl = profileImgURL;
     }
 
+    // prepare data
+    cUser!.fullName = fullNameTEC.text.trim();
+    cUser!.bio = bioTEC.text.trim();
+    // cUser!.email = emailTEC.text.trim();
+
     // update user data
     await cUser!.update();
-    Get.back();
+    if (Navigator.of(context).canPop()) {
+      Get.back();
+    } else {
+      Get.offAll(() => const ProfileScreen());
+    }
   }
 
   Future<String?> uploadMedia(File myImageFile) async {
@@ -504,5 +515,30 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     var downloadUrl = await ref.getDownloadURL();
 
     return downloadUrl;
+  }
+
+  void showSignOutAlert() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog.adaptive(
+            title: Text("Are you sure you want to sign out?"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text("Cancel"),
+              ),
+              TextButton(
+                onPressed: () {
+                  authProvider.signOut();
+                  Navigator.of(context).pop();
+                },
+                child: Text("Sign out"),
+              ),
+            ],
+          );
+        });
   }
 }

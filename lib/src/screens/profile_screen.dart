@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:kurd_tree/src/constants/assets.dart';
@@ -7,8 +8,11 @@ import 'package:kurd_tree/src/helper/k_widgets.dart';
 import 'package:kurd_tree/src/helper/spcolor.dart';
 import 'package:kurd_tree/src/models/kt_social_model.dart';
 import 'package:kurd_tree/src/models/kt_user_model.dart';
+import 'package:kurd_tree/src/providers/auth_provider.dart';
 import 'package:kurd_tree/src/screens/edit_profile_screen.dart';
 import 'package:kurd_tree/src/widgets/k_social_row.dart';
+import 'package:lottie/lottie.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -19,36 +23,58 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  KTUser? mUser;
+  late AuthProvider authProvider;
+
+  KTUser? get mUser => authProvider.user;
 
   bool isLoading = false;
+
+  bool showSplash = true;
 
   @override
   void initState() {
     super.initState();
-    loadUser();
+    1.delay(() {
+      setState(() {
+        showSplash = false;
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    authProvider = Provider.of(context);
     return Scaffold(
       backgroundColor: SPColors.dark,
       body: Stack(
-        children: [body, KWidget.loadingView(isLoading)],
+        children: [
+          SizedBox(
+            height: Get.height,
+          ),
+          body,
+          KWidget.loadingView(isLoading),
+          AnimatedPositioned(
+            duration: 0.5.seconds,
+            curve: Curves.easeInOut,
+            left: 0,
+            right: 0,
+            top: 0,
+            bottom: showSplash ? 0 : Get.height,
+            child: Container(
+              height: Get.height,
+              color: SPColors.light,
+              child: Center(
+                child: Lottie.asset(
+                  Assets.resourceIconLotiteSocial,
+                  width: Get.width / 2,
+                  height: Get.width / 2,
+                ),
+              ),
+            ),
+          )
+        ],
       ),
     );
-  }
-
-  loadUser() async {
-    print("loadUser called");
-    setState(() {
-      isLoading = true;
-    });
-    mUser = await KTUser.getUser(userUID: "abc123");
-    if (mUser != null) {
-      isLoading = false;
-    }
-    setState(() {});
   }
 
   Widget get body {
@@ -81,7 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
-                          Assets.resourceIconPc,
+                          Assets.resourceIconUser,
                           fit: BoxFit.cover,
                         ),
                 ),
@@ -92,8 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               right: 20,
               child: GestureDetector(
                 onTap: () {
-                  Get.to(() => EditProfileScreen(user: mUser))
-                      ?.then((value) => loadUser());
+                  Get.to(() => const EditProfileScreen());
                 },
                 child: SafeArea(
                   child: Container(
@@ -125,7 +150,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
-                          Assets.resourceIconPersone,
+                          Assets.resourceIconUser,
                           fit: BoxFit.cover,
                         ),
                 ),

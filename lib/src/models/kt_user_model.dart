@@ -58,13 +58,13 @@ class KTUser {
     );
   }
 
-  Future save() async {
+  Future<void> save() async {
     createdAt = Timestamp.now();
     updatedAt = Timestamp.now();
     return FirebaseFirestore.instance.collection('users').doc(uid).set(toMap());
   }
 
-  Future update() async {
+  Future<void> update() async {
     updatedAt = Timestamp.now();
     return FirebaseFirestore.instance.collection('users').doc(uid).set(toMap());
   }
@@ -76,4 +76,7 @@ class KTUser {
         .get()
         .then((value) => KTUser.fromMap(value.data()!));
   }
+
+
+
 }

@@ -29,6 +29,10 @@ class Assets {
   /// assets/icon/linkedin.png
   static const String resourceIconLinkedin = "assets/icon/linkedin.png";
 
+  /// Assets for resourceIconLotiteSocial
+  /// assets/icon/lotite_social.json
+  static const String resourceIconLotiteSocial = "assets/icon/lotite_social.json";
+
   /// Assets for resourceIconLottieLoading
   /// assets/icon/lottie_loading.json
   static const String resourceIconLottieLoading = "assets/icon/lottie_loading.json";
@@ -52,14 +56,6 @@ class Assets {
   /// Assets for resourceIconPaypal
   /// assets/icon/paypal.png
   static const String resourceIconPaypal = "assets/icon/paypal.png";
-
-  /// Assets for resourceIconPc
-  /// assets/icon/pc.jpg
-  static const String resourceIconPc = "assets/icon/pc.jpg";
-
-  /// Assets for resourceIconPersone
-  /// assets/icon/persone.jpg
-  static const String resourceIconPersone = "assets/icon/persone.jpg";
 
   /// Assets for resourceIconTelegram
   /// assets/icon/telegram.png
